@@ -1,10 +1,11 @@
+
 document.getElementById("boostForm").addEventListener("submit", function(e) {
     e.preventDefault();
     const service = document.getElementById("service").value;
     const link = document.getElementById("link").value;
     const quantity = document.getElementById("quantity").value;
 
-    fetch("/api/order", {
+    fetch("https://3-1-e8r9.onrender.com/api/order", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
