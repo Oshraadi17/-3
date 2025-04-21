@@ -1,84 +1,75 @@
-
-const express = require("express");
-const axios = require("axios");
-const bodyParser = require("body-parser");
+const express = require('express');
+const bodyParser = require('body-parser');
+const axios = require('axios');
 const app = express();
-const PORT = process.env.PORT || 10000;
+const port = process.env.PORT || 10000;
 
 app.use(bodyParser.json());
-app.use(express.static(__dirname));
+app.use(express.static('.'));
 
-const suppliers = [
-  {
-    name: "Peakerr",
-    url: "https://peakerr.com/api/v2",
-    key: "7e2a1421e24ed0570c518d2f613a4365"
+const SUPPLIERS = {
+  peakerr: {
+    url: 'https://peakerr.com/api/v2',
+    key: 'd75f46d4bf4adbff66037c90aac642f6'
   },
-  {
-    name: "SMMFollows",
-    url: "https://smmfollows.com/api/v2",
-    key: "d75f46d4bf4adbff66037c90aac642f6"
+  smmfollows: {
+    url: 'https://smmfollows.com/api/v2',
+    key: 'd7c89a3283ce994acb8b8ace69dd53ec'
   }
-];
+};
 
-app.post("/api/order", async (req, res) => {
-  const { platform, serviceType, link, quantity } = req.body;
+app.post('/api/order', async (req, res) => {
+  const { platform, serviceType, target, quantity } = req.body;
 
-  if (!platform || !serviceType || !link || !quantity) {
-    return res.status(400).json({ message: "שדות חסרים בבקשה." });
-  }
-
-  let chosen = null;
+  const suppliers = Object.values(SUPPLIERS);
+  let bestService = null;
 
   for (const supplier of suppliers) {
     try {
-      const servicesRes = await axios.post(supplier.url, {
+      const response = await axios.post(supplier.url, {
         key: supplier.key,
-        action: "services"
+        action: 'services'
+      });
+      const services = response.data;
+
+      const matching = services.find(service => {
+        return (
+          service.category.toLowerCase().includes(platform.toLowerCase()) &&
+          service.name.toLowerCase().includes(serviceType.toLowerCase())
+        );
       });
 
-      const services = servicesRes.data;
-
-      const filtered = services.filter(service =>
-        service.name &&
-        service.name.toLowerCase().includes(platform.toLowerCase()) &&
-        service.name.toLowerCase().includes(serviceType.toLowerCase())
-      );
-
-      if (filtered.length > 0) {
-        chosen = { supplier, service: filtered[0] };
+      if (matching) {
+        bestService = { id: matching.service, supplier };
         break;
       }
-    } catch (err) {
-      console.error(`שגיאה בשליפת שירותים מ-${supplier.name}:`, err.message);
+    } catch (error) {
+      continue;
     }
   }
 
-  if (!chosen) {
-    return res.status(404).json({ message: "לא נמצא שירות מתאים להזמנה." });
+  if (!bestService) {
+    return res.json({ message: 'לא נמצא שירות מתאים להזמנה.' });
   }
 
   try {
-    const orderRes = await axios.post(chosen.supplier.url, {
-      key: chosen.supplier.key,
-      action: "add",
-      service: chosen.service.service,
-      link,
-      quantity
+    const orderResponse = await axios.post(bestService.supplier.url, {
+      key: bestService.supplier.key,
+      action: 'add',
+      service: bestService.id,
+      link: target,
+      quantity: quantity
     });
 
     res.json({
-      success: true,
-      message: `הזמנה נשלחה דרך ${chosen.supplier.name}, מספר: ${orderRes.data.order || "N/A"}`,
-      serviceId: chosen.service.service,
-      averageTime: chosen.service.average_time || "לא ידוע"
+      message: 'הזמנה נשלחה בהצלחה',
+      order: orderResponse.data
     });
-  } catch (err) {
-    console.error("שגיאה בביצוע ההזמנה:", err.message);
-    res.status(500).json({ message: "שגיאה בביצוע ההזמנה." });
+  } catch (error) {
+    res.json({ message: 'שגיאה בהזמנה', error: error.response?.data || error.message });
   }
 });
 
-app.listen(PORT, () => {
-  console.log("Adi Boost PRO - שרת עם תמיכה בפלטפורמה רץ על פורט " + PORT);
+app.listen(port, () => {
+  console.log(`Adi Boost PRO רץ על פורט ${port}`);
 });
