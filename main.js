@@ -1,27 +1,37 @@
 
 async function submitOrder() {
-    const serviceType = document.getElementById("serviceType")?.value;
-    const link = document.getElementById("link")?.value;
-    const quantity = document.getElementById("quantity")?.value;
+    const serviceType = document.getElementById("serviceType").value;
+    const link = document.getElementById("link").value;
+    const quantity = parseInt(document.getElementById("quantity").value);
+    const responseDiv = document.getElementById("response");
 
     if (!serviceType || !link || !quantity) {
-        document.getElementById("response").innerText = "נא למלא את כל השדות";
+        responseDiv.innerText = "נא למלא את כל השדות.";
         return;
     }
+
+    responseDiv.innerText = "שולח הזמנה...";
 
     try {
         const response = await fetch("/api/order", {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ serviceType, link, quantity })
         });
 
         const result = await response.json();
-        document.getElementById("response").innerText = result.message || "ההזמנה בוצעה בהצלחה";
+        if (result.success) {
+            responseDiv.innerHTML = `
+                <p style="color:lime">ההזמנה נשלחה בהצלחה!</p>
+                <p><strong>ספק:</strong> ${result.message}</p>
+                <p><strong>Service ID:</strong> ${result.serviceId}</p>
+                <p><strong>זמן ממוצע:</strong> ${result.averageTime} דקות</p>
+            `;
+        } else {
+            responseDiv.innerHTML = `<p style="color:orange">${result.message}</p>`;
+        }
     } catch (error) {
-        document.getElementById("response").innerText = "שגיאה בשליחת ההזמנה";
-        console.error("Error:", error);
+        responseDiv.innerHTML = "<p style='color:red'>שגיאה בשליחת ההזמנה.</p>";
+        console.error("שגיאה:", error);
     }
 }
