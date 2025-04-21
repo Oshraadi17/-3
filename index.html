@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="he">
 <head>
@@ -12,10 +13,11 @@
       <option value="tiktok">TikTok</option>
       <option value="instagram">Instagram</option>
     </select>
-    <select id="serviceType">
+    <select id="serviceType" onchange="updatePlaceholder()">
       <option value="likes">לייקים</option>
       <option value="followers">עוקבים</option>
       <option value="views">צפיות</option>
+      <option value="live">צפיות בלייב</option>
     </select>
     <input id="target" placeholder="קישור או שם משתמש" />
     <input id="quantity" placeholder="כמות" type="number" />

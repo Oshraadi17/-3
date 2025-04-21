@@ -1,3 +1,4 @@
+
 const express = require('express');
 const bodyParser = require('body-parser');
 const axios = require('axios');
@@ -20,6 +21,7 @@ const SUPPLIERS = {
 
 app.post('/api/order', async (req, res) => {
   const { platform, serviceType, target, quantity } = req.body;
+  const isUsername = serviceType === 'followers' || serviceType === 'live';
 
   const suppliers = Object.values(SUPPLIERS);
   let bestService = null;
@@ -32,12 +34,11 @@ app.post('/api/order', async (req, res) => {
       });
       const services = response.data;
 
-      const matching = services.find(service => {
-        return (
-          service.category.toLowerCase().includes(platform.toLowerCase()) &&
-          service.name.toLowerCase().includes(serviceType.toLowerCase())
-        );
-      });
+      const matching = services.find(service =>
+        service.category.toLowerCase().includes(platform.toLowerCase()) &&
+        service.name.toLowerCase().includes(serviceType.toLowerCase()) &&
+        (isUsername ? service.type === 'username' : service.type === 'default')
+      );
 
       if (matching) {
         bestService = { id: matching.service, supplier };
@@ -62,11 +63,11 @@ app.post('/api/order', async (req, res) => {
     });
 
     res.json({
-      message: 'הזמנה נשלחה בהצלחה',
+      message: 'ההזמנה נשלחה בהצלחה ✅',
       order: orderResponse.data
     });
   } catch (error) {
-    res.json({ message: 'שגיאה בהזמנה', error: error.response?.data || error.message });
+    res.json({ message: 'שגיאה בהזמנה ❌', error: error.response?.data || error.message });
   }
 });
 
