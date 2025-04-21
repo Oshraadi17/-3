@@ -19,8 +19,9 @@ async function submitOrder() {
     return;
   }
 
+  resultDiv.innerText = '🚀 שולח הזמנה...';
+
   try {
-    resultDiv.innerText = 'שולח הזמנה...';
     const response = await fetch('/api/order', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

@@ -23,10 +23,10 @@ app.post('/api/order', async (req, res) => {
   const { platform, serviceType, target, quantity } = req.body;
   const isUsername = serviceType === 'followers' || serviceType === 'live';
 
-  const suppliers = Object.values(SUPPLIERS);
-  let bestService = null;
+  let allMatches = [];
 
-  for (const supplier of suppliers) {
+  for (const supplierName in SUPPLIERS) {
+    const supplier = SUPPLIERS[supplierName];
     try {
       const response = await axios.post(supplier.url, {
         key: supplier.key,
@@ -34,43 +34,51 @@ app.post('/api/order', async (req, res) => {
       });
       const services = response.data;
 
-      const matching = services.find(service =>
-        service.category.toLowerCase().includes(platform.toLowerCase()) &&
-        service.name.toLowerCase().includes(serviceType.toLowerCase()) &&
-        (isUsername ? service.type === 'username' : service.type === 'default')
-      );
+      const matches = services
+        .filter(service =>
+          service.category.toLowerCase().includes(platform.toLowerCase()) &&
+          service.name.toLowerCase().includes(serviceType.toLowerCase()) &&
+          (isUsername ? service.type === 'username' : service.type === 'default')
+        )
+        .map(service => ({
+          serviceId: service.service,
+          rate: parseFloat(service.rate) || 0,
+          averageTime: parseFloat(service.average_time) || 9999,
+          supplier,
+          supplierName
+        }));
 
-      if (matching) {
-        bestService = { id: matching.service, supplier };
-        break;
-      }
+      allMatches = allMatches.concat(matches);
     } catch (error) {
       continue;
     }
   }
 
-  if (!bestService) {
-    return res.json({ message: 'לא נמצא שירות מתאים להזמנה.' });
+  if (allMatches.length === 0) {
+    return res.json({ message: '❌ לא נמצא שירות מתאים להזמנה.' });
   }
 
+  allMatches.sort((a, b) => a.rate - b.rate || a.averageTime - b.averageTime);
+  const best = allMatches[0];
+
   try {
-    const orderResponse = await axios.post(bestService.supplier.url, {
-      key: bestService.supplier.key,
+    const orderResponse = await axios.post(best.supplier.url, {
+      key: best.supplier.key,
       action: 'add',
-      service: bestService.id,
+      service: best.serviceId,
       link: target,
       quantity: quantity
     });
 
     res.json({
-      message: 'ההזמנה נשלחה בהצלחה ✅',
+      message: `✅ הזמנה נשלחה! ספק: ${best.supplierName}, מחיר ל-1000: $${best.rate}, זמן ממוצע: ${best.averageTime} דקות`,
       order: orderResponse.data
     });
   } catch (error) {
-    res.json({ message: 'שגיאה בהזמנה ❌', error: error.response?.data || error.message });
+    res.json({ message: '❌ שגיאה בביצוע ההזמנה', error: error.response?.data || error.message });
   }
 });
 
 app.listen(port, () => {
-  console.log(`Adi Boost PRO רץ על פורט ${port}`);
+  console.log(`Adi Boost PRO Optimization Server is running on port ${port}`);
 });
