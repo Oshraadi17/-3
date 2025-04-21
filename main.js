@@ -1,11 +1,21 @@
 
+function updateInputPlaceholder() {
+    const service = document.getElementById("serviceType").value;
+    const input = document.getElementById("inputField");
+    if (service === "followers" || service === "live") {
+        input.placeholder = "שם משתמש (ללא @)";
+    } else {
+        input.placeholder = "קישור לסרטון";
+    }
+}
+
 async function submitOrder() {
     const serviceType = document.getElementById("serviceType").value;
-    const link = document.getElementById("link").value;
+    const inputValue = document.getElementById("inputField").value.trim();
     const quantity = parseInt(document.getElementById("quantity").value);
     const responseDiv = document.getElementById("response");
 
-    if (!serviceType || !link || !quantity) {
+    if (!serviceType || !inputValue || !quantity) {
         responseDiv.innerText = "נא למלא את כל השדות.";
         return;
     }
@@ -16,7 +26,7 @@ async function submitOrder() {
         const response = await fetch("/api/order", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ serviceType, link, quantity })
+            body: JSON.stringify({ serviceType, link: inputValue, quantity })
         });
 
         const result = await response.json();

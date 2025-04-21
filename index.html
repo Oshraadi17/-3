@@ -4,18 +4,47 @@
 <head>
     <meta charset="UTF-8">
     <title>Adi Boost PRO</title>
-    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            background-color: #0f0f0f;
+            color: white;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            padding-top: 60px;
+        }
+        .container {
+            background-color: #1f1f1f;
+            padding: 30px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+        }
+        input, select, button {
+            display: block;
+            margin: 10px auto;
+            width: 90%;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        #response {
+            margin-top: 15px;
+        }
+    </style>
 </head>
 <body>
 <div class="container">
-    <h1>Adi Boost PRO 🚀</h1>
-    <select id="serviceType">
-        <option value="likes">לייקים</option>
-        <option value="followers">עוקבים</option>
-        <option value="views">צפיות</option>
-        <option value="live">צפיות בלייב</option>
+    <h1>Adi Boost PRO</h1>
+    <select id="serviceType" onchange="updateInputPlaceholder()">
+        <option value="likes">לייקים (לינק)</option>
+        <option value="views">צפיות (לינק)</option>
+        <option value="followers">עוקבים (שם משתמש)</option>
+        <option value="live">צפיות בלייב (שם משתמש)</option>
     </select>
-    <input type="text" id="link" placeholder="קישור לסרטון">
+    <input type="text" id="inputField" placeholder="קישור לסרטון או שם משתמש">
     <input type="number" id="quantity" placeholder="כמות">
     <button onclick="submitOrder()">הזמן עכשיו</button>
     <div id="response"></div>
