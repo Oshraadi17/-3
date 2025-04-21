@@ -19,6 +19,18 @@ const SUPPLIERS = {
   }
 };
 
+const serviceKeywords = {
+  likes: ['like', 'likes', 'hearts'],
+  followers: ['follow', 'follower', 'followers'],
+  views: ['view', 'views', 'watch'],
+  live: ['live', 'stream', 'live views', 'livestream']
+};
+
+function isMatch(name, keywords) {
+  const lower = name.toLowerCase();
+  return keywords.some(k => lower.includes(k));
+}
+
 app.post('/api/order', async (req, res) => {
   const { platform, serviceType, target, quantity } = req.body;
   const isUsername = serviceType === 'followers' || serviceType === 'live';
@@ -37,7 +49,7 @@ app.post('/api/order', async (req, res) => {
       const matches = services
         .filter(service =>
           service.category.toLowerCase().includes(platform.toLowerCase()) &&
-          service.name.toLowerCase().includes(serviceType.toLowerCase()) &&
+          isMatch(service.name, serviceKeywords[serviceType]) &&
           (isUsername ? service.type === 'username' : service.type === 'default')
         )
         .map(service => ({
@@ -55,7 +67,7 @@ app.post('/api/order', async (req, res) => {
   }
 
   if (allMatches.length === 0) {
-    return res.json({ message: '❌ לא נמצא שירות מתאים להזמנה.' });
+    return res.json({ message: '❌ לא נמצא שירות תואם להזמנה (חיפוש חכם).' });
   }
 
   allMatches.sort((a, b) => a.rate - b.rate || a.averageTime - b.averageTime);
@@ -71,7 +83,7 @@ app.post('/api/order', async (req, res) => {
     });
 
     res.json({
-      message: `✅ הזמנה נשלחה! ספק: ${best.supplierName}, מחיר ל-1000: $${best.rate}, זמן ממוצע: ${best.averageTime} דקות`,
+      message: `✅ נבחר שירות חכם: ${best.supplierName}, מחיר ל-1000: $${best.rate}, זמן ממוצע: ${best.averageTime} דקות`,
       order: orderResponse.data
     });
   } catch (error) {
@@ -80,5 +92,5 @@ app.post('/api/order', async (req, res) => {
 });
 
 app.listen(port, () => {
-  console.log(`Adi Boost PRO Optimization Server is running on port ${port}`);
+  console.log('Adi Boost SMART server is running');
 });
