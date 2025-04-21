@@ -1,1 +1,30 @@
-<!DOCTYPE html><html><head><title>Adi Boost PRO+</title></head><body>Boost PRO+ Ready</body></html>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Adi Boost PRO</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="container">
+    <h1>Adi Boost PRO</h1>
+    <select id="platform">
+        <option value="TikTok">TikTok</option>
+        <option value="Instagram">Instagram</option>
+    </select>
+    <select id="service">
+        <option value="followers">Followers</option>
+        <option value="likes">Likes</option>
+        <option value="views">Views</option>
+    </select>
+    <input type="text" id="usernameOrUrl" placeholder="Enter username or video link">
+    <input type="number" id="quantity" placeholder="Quantity">
+    <button onclick="estimatePrice()">Estimate Price</button>
+    <div id="priceResult"></div>
+    <button onclick="orderNow()">Order Now</button>
+    <div id="orderResult"></div>
+</div>
+<script src="main.js"></script>
+</body>
+</html>

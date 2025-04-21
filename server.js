@@ -1,17 +1,33 @@
 
 const express = require('express');
-const app = express();
 const cors = require('cors');
+const bodyParser = require('body-parser');
+
+const app = express();
+const PORT = process.env.PORT || 10000;
 
 app.use(cors());
-app.use(express.json());
+app.use(bodyParser.json());
+app.use(express.static(__dirname));
 
-app.get('/', (req, res) => {
-  res.send('Adi Boost PRO API is live!');
+app.post('/price', (req, res) => {
+    const { platform, service, quantity } = req.body;
+    if (!quantity || isNaN(quantity)) {
+        return res.json({ message: 'Invalid quantity' });
+    }
+    const price = 0.0003 * parseInt(quantity);  // Example price per unit
+    res.json({ price });
 });
 
-// הוספת האזנה לפורט לפי Render
-const port = process.env.PORT || 10000;
-app.listen(port, () => {
-  console.log(`Adi Boost PRO server running on port ${port}`);
+app.post('/order', (req, res) => {
+    const { platform, service, usernameOrUrl, quantity } = req.body;
+    if (!platform || !service || !usernameOrUrl || !quantity) {
+        return res.json({ message: 'Missing required fields' });
+    }
+    // Normally API call to supplier would go here
+    res.json({ message: `Order placed: ${platform} ${service}, ${quantity} units to ${usernameOrUrl}` });
+});
+
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
 });
