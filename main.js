@@ -1,28 +1,27 @@
 
 async function submitOrder() {
-  const link = document.getElementById('link').value;
-  const quantity = document.getElementById('quantity').value;
-  const serviceType = document.getElementById('serviceType').value;
+    const serviceElement = document.getElementById('service');
+    const linkElement = document.getElementById('link');
+    const quantityElement = document.getElementById('quantity');
+    const responseMessage = document.getElementById('responseMessage');
 
-  const resBox = document.getElementById('response');
-  resBox.textContent = 'שולח הזמנה...';
+    if (!serviceElement || !linkElement || !quantityElement) {
+        console.error("Missing input elements.");
+        return;
+    }
 
-  try {
-    const res = await fetch('/api/order', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ link, quantity, service: serviceType })
+    const service = serviceElement.value;
+    const link = linkElement.value;
+    const quantity = quantityElement.value;
+
+    const response = await fetch('/api/order', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ service, link, quantity })
     });
 
-    const data = await res.json();
-    if (res.ok) {
-      resBox.textContent = data.message || 'ההזמנה נשלחה!';
-    } else {
-      resBox.textContent = 'שגיאה: ' + (data.message || 'קרתה שגיאה');
-    }
-  } catch (err) {
-    resBox.textContent = 'שגיאת רשת';
-  }
+    const result = await response.json();
+    responseMessage.textContent = result.message || "שגיאה בהזמנה";
 }
