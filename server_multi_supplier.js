@@ -1,85 +1,77 @@
 
-const express = require("express");
-const bodyParser = require("body-parser");
-const axios = require("axios");
-const path = require("path");
-
+const express = require('express');
+const axios = require('axios');
+const bodyParser = require('body-parser');
 const app = express();
 const PORT = process.env.PORT || 10000;
 
 app.use(bodyParser.json());
-app.use(express.static(path.join(__dirname)));
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.static(__dirname));
 
-const SUPPLIERS = [
+// מפתחות ה-API
+const suppliers = [
   {
-    name: "smmfollows",
+    name: "SMMFollows",
     url: "https://smmfollows.com/api/v2",
-    key: "8fb07bbae1e48bfc9ad4b0d8b280447b"
+    key: "d7c89a3283ce994acb8b8ace69dd53ec"
   },
   {
-    name: "peakerr",
+    name: "Peakerr",
     url: "https://panel.peakerr.com/api/v2",
-    key: "7e2a1421e24ed0570c518d2f613a4365"
+    key: "d75f46d4bf4adbff66037c90aac642f6"
   }
 ];
 
-async function getBestService(serviceType, quantity) {
-  for (const supplier of SUPPLIERS) {
+app.post("/api/order", async (req, res) => {
+  const { serviceType, link, quantity } = req.body;
+
+  let selectedService = null;
+  let selectedSupplier = null;
+
+  for (const supplier of suppliers) {
     try {
-      const res = await axios.post(supplier.url, {
+      const response = await axios.post(supplier.url, {
         key: supplier.key,
         action: "services"
       });
 
-      const services = res.data.filter(s =>
-        s.type === "Default" &&
-        s.status === "Active" &&
-        s.category.toLowerCase().includes("tiktok") &&
+      const services = response.data;
+      const filtered = services.filter(s =>
         s.name.toLowerCase().includes(serviceType.toLowerCase()) &&
-        s.min <= quantity &&
+        s.rate &&
         s.max >= quantity
-      );
+      ).sort((a, b) => a.rate - b.rate);
 
-      if (services.length > 0) {
-        const best = services.sort((a, b) => a.average_time - b.average_time)[0];
-        return { supplier, service: best };
+      if (filtered.length > 0) {
+        selectedService = filtered[0];
+        selectedSupplier = supplier;
+        break;
       }
-    } catch (error) {
-      console.log(`שגיאה בספק ${supplier.name}:`, error.message);
+    } catch (err) {
+      console.log(`שגיאה עם ${supplier.name}:`, err.message);
     }
   }
-  return null;
-}
 
-app.post("/api/order", async (req, res) => {
-  const { service, link, quantity } = req.body;
-
-  const result = await getBestService(service, quantity);
-  if (!result) {
-    return res.status(400).json({ message: "לא נמצא שירות מתאים להזמנה." });
+  if (!selectedService || !selectedSupplier) {
+    return res.status(400).json({ error: "לא נמצא שירות מתאים להזמנה." });
   }
 
-  const { supplier, service: selectedService } = result;
-
   try {
-    const orderRes = await axios.post(supplier.url, {
-      key: supplier.key,
+    const orderResponse = await axios.post(selectedSupplier.url, {
+      key: selectedSupplier.key,
       action: "add",
       service: selectedService.service,
       link,
       quantity
     });
 
-    if (orderRes.data && orderRes.data.order) {
-      res.json({ message: `ההזמנה נשלחה דרך ${supplier.name}, מס׳ הזמנה: ${orderRes.data.order}` });
-    } else {
-      res.json({ message: "ההזמנה נשלחה אך לא התקבלה תגובה תקינה." });
-    }
-  } catch (err) {
-    res.status(500).json({ message: "שגיאה בעת ביצוע ההזמנה." });
+    res.json({ success: true, supplier: selectedSupplier.name, order: orderResponse.data });
+  } catch (error) {
+    res.status(500).json({ error: "נכשלה ההזמנה." });
   }
 });
 
 app.listen(PORT, () => {
-  console.log("Adi-Boost server עם תמיכה בשני ספקים רץ על פורט", PORT);
+  console.log(`Adi-Boost server פועל על פורט ${PORT}`);
 });
