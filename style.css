@@ -1,14 +1,1 @@
-body {
-  background: #121212;
-  color: white;
-  font-family: sans-serif;
-}
-.container {
-  text-align: center;
-  margin-top: 50px;
-}
-input, select, button {
-  padding: 10px;
-  margin: 10px;
-  width: 80%;
-}
+body { background: black; color: white; }
