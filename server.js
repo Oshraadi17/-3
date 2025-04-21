@@ -1,4 +1,3 @@
-
 const express = require('express');
 const bodyParser = require('body-parser');
 const axios = require('axios');
@@ -6,7 +5,7 @@ const app = express();
 const port = process.env.PORT || 10000;
 
 app.use(bodyParser.json());
-app.use(express.static('.'));
+app.use(express.static(__dirname));
 
 const SUPPLIERS = {
   peakerr: {
@@ -19,99 +18,99 @@ const SUPPLIERS = {
   }
 };
 
-const serviceKeywords = {
-  likes: ['like'],
+const keywordMap = {
   followers: ['follower'],
+  likes: ['like'],
   views: ['view'],
-  live: ['live']
+  live: ['live', 'stream']
 };
 
-function isMatch(name, keywords) {
+function matchesKeywords(name, keywords) {
   const lower = name.toLowerCase();
   return keywords.some(k => lower.includes(k));
 }
 
 app.post('/api/estimate', async (req, res) => {
   const { platform, serviceType, quantity } = req.body;
-  const isUsername = ['followers', 'live'].includes(serviceType);
-  let matches = [];
+  let candidates = [];
 
-  for (const name in SUPPLIERS) {
-    const sup = SUPPLIERS[name];
+  for (const [supplierName, supplier] of Object.entries(SUPPLIERS)) {
     try {
-      const services = (await axios.post(sup.url, {
-        key: sup.key,
+      const services = (await axios.post(supplier.url, {
+        key: supplier.key,
         action: 'services'
       })).data;
 
-      matches = matches.concat(services
-        .filter(s =>
-          s.category.toLowerCase().includes(platform.toLowerCase()) &&
-          isMatch(s.name, serviceKeywords[serviceType]) &&
-          (isUsername ? s.type === 'username' : s.type === 'default')
-        )
-        .map(s => ({
-          rate: parseFloat(s.rate),
-          supplier: name
-        }))
-      );
-    } catch {}
+      services.forEach(svc => {
+        if (svc.category.toLowerCase().includes(platform.toLowerCase()) &&
+            matchesKeywords(svc.name, keywordMap[serviceType])) {
+          candidates.push({
+            supplierName,
+            service: svc.service,
+            rate: parseFloat(svc.rate),
+            avgTime: svc.average_time || 9999,
+            name: svc.name,
+            supplier
+          });
+        }
+      });
+    } catch (e) {
+      console.log('Error from supplier', supplierName, e.message);
+    }
   }
 
-  if (!matches.length) return res.json({ message: '❌ No matching service found.' });
+  if (!candidates.length) return res.json({ message: 'No matching service found.' });
 
-  matches.sort((a, b) => a.rate - b.rate);
-  const best = matches[0];
-  const totalPrice = ((best.rate / 1000) * quantity).toFixed(2);
-  res.json({ message: `✅ Best: ${best.supplier} | Rate: $${best.rate}/1000 | Total: $${totalPrice}` });
+  candidates.sort((a, b) => a.rate - b.rate || a.avgTime - b.avgTime);
+  const best = candidates[0];
+  const total = (best.rate / 1000) * quantity;
+  res.json({ message: `Best: ${best.name} | ${best.supplierName} | Total: $${total.toFixed(2)}` });
 });
 
 app.post('/api/order', async (req, res) => {
   const { platform, serviceType, target, quantity } = req.body;
-  const isUsername = ['followers', 'live'].includes(serviceType);
-  let matches = [];
+  let candidates = [];
 
-  for (const name in SUPPLIERS) {
-    const sup = SUPPLIERS[name];
+  for (const [supplierName, supplier] of Object.entries(SUPPLIERS)) {
     try {
-      const services = (await axios.post(sup.url, {
-        key: sup.key,
+      const services = (await axios.post(supplier.url, {
+        key: supplier.key,
         action: 'services'
       })).data;
 
-      matches = matches.concat(services
-        .filter(s =>
-          s.category.toLowerCase().includes(platform.toLowerCase()) &&
-          isMatch(s.name, serviceKeywords[serviceType]) &&
-          (isUsername ? s.type === 'username' : s.type === 'default')
-        )
-        .map(s => ({
-          id: s.service,
-          rate: parseFloat(s.rate),
-          supplier: sup,
-          supplierName: name
-        }))
-      );
+      services.forEach(svc => {
+        if (svc.category.toLowerCase().includes(platform.toLowerCase()) &&
+            matchesKeywords(svc.name, keywordMap[serviceType])) {
+          candidates.push({
+            supplierName,
+            service: svc.service,
+            rate: parseFloat(svc.rate),
+            avgTime: svc.average_time || 9999,
+            name: svc.name,
+            supplier
+          });
+        }
+      });
     } catch {}
   }
 
-  if (!matches.length) return res.json({ message: '❌ No matching service for order.' });
+  if (!candidates.length) return res.json({ message: 'No matching service to order.' });
 
-  matches.sort((a, b) => a.rate - b.rate);
-  const best = matches[0];
+  candidates.sort((a, b) => a.rate - b.rate || a.avgTime - b.avgTime);
+  const best = candidates[0];
 
   try {
-    const response = await axios.post(best.supplier.url, {
+    const order = await axios.post(best.supplier.url, {
       key: best.supplier.key,
       action: 'add',
-      service: best.id,
+      service: best.service,
       link: target,
-      quantity: quantity
+      quantity
     });
-    res.json({ message: `✅ Order sent to ${best.supplierName}`, order: response.data });
+    res.json({ message: `Order placed: ${best.name} (${best.supplierName})`, order: order.data });
   } catch (err) {
-    res.json({ message: '❌ Error placing order', error: err.response?.data || err.message });
+    res.json({ message: 'Error placing order.', error: err.message });
   }
 });
 
-app.listen(port, () => console.log(`Adi Boost with price display running on port ${port}`));
+app.listen(port, () => console.log('Server running on port', port));

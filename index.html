@@ -1,9 +1,8 @@
-
 <!DOCTYPE html>
 <html lang="he">
 <head>
   <meta charset="UTF-8" />
-  <title>Adi Boost PRO</title>
+  <title>Adi Boost PRO Auto Match</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -14,15 +13,15 @@
       <option value="instagram">Instagram</option>
     </select>
     <select id="serviceType">
-      <option value="likes">Likes</option>
       <option value="followers">Followers</option>
+      <option value="likes">Likes</option>
       <option value="views">Views</option>
       <option value="live">Live Views</option>
     </select>
-    <input id="target" placeholder="Link or Username" />
+    <input id="target" placeholder="Username or Link" />
     <input id="quantity" type="number" placeholder="Quantity" />
     <button onclick="estimatePrice()">Estimate Price</button>
-    <div id="priceResult" class="highlight"></div>
+    <div id="priceDisplay"></div>
     <button onclick="submitOrder()">Order Now</button>
     <p id="resultText"></p>
   </div>
