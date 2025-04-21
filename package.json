@@ -1,14 +1,12 @@
-
 {
   "name": "adi-boost",
   "version": "1.0.0",
-  "main": "server.js",
+  "main": "server_multi_supplier_fixed.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server_multi_supplier_fixed.js"
   },
   "dependencies": {
     "axios": "^1.6.0",
-    "body-parser": "^1.20.2",
     "express": "^4.18.2"
   }
 }

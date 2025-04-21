@@ -1,12 +1,10 @@
-
-const express = require('express');
-const axios = require('axios');
-const bodyParser = require('body-parser');
+const express = require("express");
+const axios = require("axios");
+const bodyParser = require("body-parser");
 const app = express();
 const PORT = process.env.PORT || 10000;
 
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(__dirname));
 
 const suppliers = [
@@ -23,54 +21,46 @@ const suppliers = [
 ];
 
 app.post("/api/order", async (req, res) => {
-  const { serviceType, link, quantity } = req.body;
-
-  let selectedService = null;
-  let selectedSupplier = null;
-
-  for (const supplier of suppliers) {
-    try {
-      const response = await axios.post(supplier.url, {
-        key: supplier.key,
-        action: "services"
-      });
-
-      const services = response.data;
-      const filtered = services.filter(s =>
-        s.name && s.name.toLowerCase().includes(serviceType.toLowerCase()) &&
-        s.rate &&
-        s.max >= quantity
-      ).sort((a, b) => a.rate - b.rate); // הכי זול = לרוב גם הכי מהיר
-
-      if (filtered.length > 0) {
-        selectedService = filtered[0];
-        selectedSupplier = supplier;
-        break;
-      }
-    } catch (err) {
-      console.log(`שגיאה עם ${supplier.name}:`, err.message);
-    }
-  }
-
-  if (!selectedService || !selectedSupplier) {
-    return res.status(400).json({ error: "לא נמצא שירות מתאים להזמנה." });
-  }
-
+  const { type, link, amount } = req.body;
   try {
-    const orderResponse = await axios.post(selectedSupplier.url, {
-      key: selectedSupplier.key,
+    let fastestSupplier = null;
+    for (let supplier of suppliers) {
+      try {
+        const response = await axios.post(supplier.url, {
+          key: supplier.key,
+          action: "services"
+        });
+        const services = response.data;
+        const matching = services.find(
+          s => s.type && s.type.toLowerCase().includes(type.toLowerCase())
+        );
+        if (matching) {
+          fastestSupplier = { ...supplier, service: matching.service };
+          break;
+        }
+      } catch (err) {
+        continue;
+      }
+    }
+
+    if (!fastestSupplier) {
+      return res.status(400).json({ message: "לא נמצא שירות מתאים להזמנה." });
+    }
+
+    await axios.post(fastestSupplier.url, {
+      key: fastestSupplier.key,
       action: "add",
-      service: selectedService.service,
+      service: fastestSupplier.service,
       link,
-      quantity
+      quantity: amount
     });
 
-    res.json({ success: true, supplier: selectedSupplier.name, order: orderResponse.data });
+    res.json({ message: "ההזמנה נשלחה בהצלחה!" });
   } catch (error) {
-    res.status(500).json({ error: "נכשלה ההזמנה." });
+    res.status(500).json({ message: "שגיאה בשרת." });
   }
 });
 
 app.listen(PORT, () => {
-  console.log(`Adi-Boost server פועל על פורט ${PORT}`);
+  console.log(`Adi-Boost server רץ על פורט ${PORT}`);
 });

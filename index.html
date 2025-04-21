@@ -1,23 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Adi Boost</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Adi Boost 🚀</title>
+  <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
-    <div class="container">
-        <h1>Adi Boost 🚀</h1>
-        <select id="service">
-            <option value="likes">לייקים</option>
-            <option value="views">צפיות</option>
-            <option value="followers">עוקבים</option>
-        </select>
-        <input type="text" id="link" placeholder="קישור לסרטון">
-        <input type="number" id="quantity" placeholder="כמות">
-        <button onclick="submitOrder()">הזמן עכשיו</button>
-        <p id="responseMsg"></p>
-    </div>
-    <script src="main.js"></script>
+  <div class="container">
+    <h1>Adi Boost 🚀</h1>
+    <select id="type">
+      <option value="likes">לייקים</option>
+      <option value="views">צפיות</option>
+      <option value="followers">עוקבים</option>
+    </select>
+    <input type="text" id="link" placeholder="קישור לסרטון"/>
+    <input type="number" id="amount" placeholder="כמות"/>
+    <button onclick="submitOrder()">הזמן עכשיו</button>
+    <p id="responseMsg"></p>
+  </div>
+  <script src="main.js"></script>
 </body>
 </html>
