@@ -1,8 +1,9 @@
+
 <!DOCTYPE html>
 <html lang="he">
 <head>
   <meta charset="UTF-8" />
-  <title>Adi Boost PRO Auto Match</title>
+  <title>Adi Boost PRO 💡</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -12,17 +13,16 @@
       <option value="tiktok">TikTok</option>
       <option value="instagram">Instagram</option>
     </select>
-    <select id="serviceType">
-      <option value="followers">Followers</option>
-      <option value="likes">Likes</option>
-      <option value="views">Views</option>
-      <option value="live">Live Views</option>
+    <select id="serviceType" onchange="updatePlaceholder()">
+      <option value="likes">לייקים</option>
+      <option value="followers">עוקבים</option>
+      <option value="views">צפיות</option>
+      <option value="live">צפיות בלייב</option>
     </select>
-    <input id="target" placeholder="Username or Link" />
-    <input id="quantity" type="number" placeholder="Quantity" />
-    <button onclick="estimatePrice()">Estimate Price</button>
-    <div id="priceDisplay"></div>
-    <button onclick="submitOrder()">Order Now</button>
+    <input id="target" placeholder="קישור או שם משתמש" />
+    <input id="quantity" type="number" placeholder="כמות" />
+    <button onclick="estimatePrice()">חשב מחיר</button>
+    <button onclick="submitOrder()">הזמן עכשיו</button>
     <p id="resultText"></p>
   </div>
   <script src="main.js"></script>
