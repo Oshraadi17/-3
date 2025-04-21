@@ -2,9 +2,9 @@
 async function submitOrder() {
   const link = document.getElementById('link').value;
   const quantity = document.getElementById('quantity').value;
-  const serviceType = document.getElementById('serviceType').value;
+  const serviceType = document.getElementById('service').value;
 
-  const resBox = document.getElementById('response');
+  const resBox = document.getElementById('responseMsg');
   resBox.textContent = 'שולח הזמנה...';
 
   try {
