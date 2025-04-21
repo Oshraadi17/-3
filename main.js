@@ -7,6 +7,32 @@ function updatePlaceholder() {
     : 'קישור לסרטון';
 }
 
+async function estimatePrice() {
+  const platform = document.getElementById('platform').value;
+  const serviceType = document.getElementById('serviceType').value;
+  const quantity = parseInt(document.getElementById('quantity').value);
+  const resultDiv = document.getElementById('resultText');
+
+  if (!platform || !serviceType || !quantity) {
+    resultDiv.innerText = 'נא לבחור פלטפורמה, שירות וכמות.';
+    return;
+  }
+
+  resultDiv.innerText = '⏳ מחשב מחיר...';
+
+  try {
+    const response = await fetch('/api/estimate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ platform, serviceType, quantity })
+    });
+    const result = await response.json();
+    resultDiv.innerText = result.message;
+  } catch (err) {
+    resultDiv.innerText = 'שגיאה בחישוב מחיר';
+  }
+}
+
 async function submitOrder() {
   const platform = document.getElementById('platform').value;
   const serviceType = document.getElementById('serviceType').value;

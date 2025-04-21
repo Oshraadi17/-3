@@ -1,5 +1,5 @@
 {
-  "name": "adi-boost-smart-match",
+  "name": "adi-boost-estimate",
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
