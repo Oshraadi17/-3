@@ -1,30 +1,30 @@
-
 <!DOCTYPE html>
-<html lang="en">
+<html lang="he">
 <head>
-    <meta charset="UTF-8">
-    <title>Adi Boost PRO</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <title>Adi Boost PRO Auto Match</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-<div class="container">
+  <div class="container">
     <h1>Adi Boost PRO</h1>
     <select id="platform">
-        <option value="TikTok">TikTok</option>
-        <option value="Instagram">Instagram</option>
+      <option value="tiktok">TikTok</option>
+      <option value="instagram">Instagram</option>
     </select>
-    <select id="service">
-        <option value="followers">Followers</option>
-        <option value="likes">Likes</option>
-        <option value="views">Views</option>
+    <select id="serviceType">
+      <option value="followers">Followers</option>
+      <option value="likes">Likes</option>
+      <option value="views">Views</option>
+      <option value="live">Live Views</option>
     </select>
-    <input type="text" id="usernameOrUrl" placeholder="Enter username or video link">
-    <input type="number" id="quantity" placeholder="Quantity">
+    <input id="target" placeholder="Username or Link" />
+    <input id="quantity" type="number" placeholder="Quantity" />
     <button onclick="estimatePrice()">Estimate Price</button>
-    <div id="priceResult"></div>
-    <button onclick="orderNow()">Order Now</button>
-    <div id="orderResult"></div>
-</div>
-<script src="main.js"></script>
+    <div id="priceDisplay"></div>
+    <button onclick="submitOrder()">Order Now</button>
+    <p id="resultText"></p>
+  </div>
+  <script src="main.js"></script>
 </body>
 </html>
