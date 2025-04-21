@@ -1,24 +1,13 @@
 
-function updatePlaceholder() {
-  const type = document.getElementById('serviceType').value;
-  const input = document.getElementById('target');
-  input.placeholder = (type === 'followers' || type === 'live')
-    ? 'שם משתמש (ללא @)'
-    : 'קישור לסרטון';
-}
-
 async function estimatePrice() {
   const platform = document.getElementById('platform').value;
   const serviceType = document.getElementById('serviceType').value;
   const quantity = parseInt(document.getElementById('quantity').value);
+  const priceDiv = document.getElementById('priceResult');
   const resultDiv = document.getElementById('resultText');
 
-  if (!platform || !serviceType || !quantity) {
-    resultDiv.innerText = 'נא לבחור פלטפורמה, שירות וכמות.';
-    return;
-  }
-
-  resultDiv.innerText = '⏳ מחשב מחיר...';
+  priceDiv.innerText = 'Calculating price...';
+  resultDiv.innerText = '';
 
   try {
     const response = await fetch('/api/estimate', {
@@ -27,25 +16,20 @@ async function estimatePrice() {
       body: JSON.stringify({ platform, serviceType, quantity })
     });
     const result = await response.json();
-    resultDiv.innerText = result.message;
+    priceDiv.innerText = result.message;
   } catch (err) {
-    resultDiv.innerText = 'שגיאה בחישוב מחיר';
+    priceDiv.innerText = 'Error calculating price.';
   }
 }
 
 async function submitOrder() {
   const platform = document.getElementById('platform').value;
   const serviceType = document.getElementById('serviceType').value;
-  const target = document.getElementById('target').value.trim();
+  const target = document.getElementById('target').value;
   const quantity = parseInt(document.getElementById('quantity').value);
   const resultDiv = document.getElementById('resultText');
 
-  if (!platform || !serviceType || !target || !quantity) {
-    resultDiv.innerText = 'נא למלא את כל השדות.';
-    return;
-  }
-
-  resultDiv.innerText = '🚀 שולח הזמנה...';
+  resultDiv.innerText = 'Placing order...';
 
   try {
     const response = await fetch('/api/order', {
@@ -54,8 +38,8 @@ async function submitOrder() {
       body: JSON.stringify({ platform, serviceType, target, quantity })
     });
     const result = await response.json();
-    resultDiv.innerText = result.message || 'בוצעה הזמנה בהצלחה';
+    resultDiv.innerText = result.message || 'Order placed.';
   } catch (err) {
-    resultDiv.innerText = 'שגיאה בשליחת ההזמנה';
+    resultDiv.innerText = 'Error placing order.';
   }
 }

@@ -1,5 +1,5 @@
 {
-  "name": "adi-boost-estimate",
+  "name": "adi-boost-price-display",
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
