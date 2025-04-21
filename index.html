@@ -38,11 +38,15 @@
 <body>
 <div class="container">
     <h1>Adi Boost PRO</h1>
-    <select id="serviceType" onchange="updateInputPlaceholder()">
-        <option value="likes">לייקים (לינק)</option>
-        <option value="views">צפיות (לינק)</option>
-        <option value="followers">עוקבים (שם משתמש)</option>
-        <option value="live">צפיות בלייב (שם משתמש)</option>
+    <select id="platform" onchange="updatePlaceholder()">
+        <option value="tiktok">TikTok</option>
+        <option value="instagram">Instagram</option>
+    </select>
+    <select id="serviceType" onchange="updatePlaceholder()">
+        <option value="likes">לייקים</option>
+        <option value="views">צפיות</option>
+        <option value="followers">עוקבים</option>
+        <option value="live">צפיות בלייב</option>
     </select>
     <input type="text" id="inputField" placeholder="קישור לסרטון או שם משתמש">
     <input type="number" id="quantity" placeholder="כמות">

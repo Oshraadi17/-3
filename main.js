@@ -1,5 +1,5 @@
 
-function updateInputPlaceholder() {
+function updatePlaceholder() {
     const service = document.getElementById("serviceType").value;
     const input = document.getElementById("inputField");
     if (service === "followers" || service === "live") {
@@ -10,12 +10,13 @@ function updateInputPlaceholder() {
 }
 
 async function submitOrder() {
+    const platform = document.getElementById("platform").value;
     const serviceType = document.getElementById("serviceType").value;
     const inputValue = document.getElementById("inputField").value.trim();
     const quantity = parseInt(document.getElementById("quantity").value);
     const responseDiv = document.getElementById("response");
 
-    if (!serviceType || !inputValue || !quantity) {
+    if (!platform || !serviceType || !inputValue || !quantity) {
         responseDiv.innerText = "נא למלא את כל השדות.";
         return;
     }
@@ -26,7 +27,7 @@ async function submitOrder() {
         const response = await fetch("/api/order", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ serviceType, link: inputValue, quantity })
+            body: JSON.stringify({ platform, serviceType, link: inputValue, quantity })
         });
 
         const result = await response.json();
