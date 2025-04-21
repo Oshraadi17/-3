@@ -1,27 +1,27 @@
 
 async function submitOrder() {
-    const serviceElement = document.getElementById('service');
-    const linkElement = document.getElementById('link');
-    const quantityElement = document.getElementById('quantity');
-    const responseMessage = document.getElementById('responseMessage');
+    const serviceType = document.getElementById("serviceType")?.value;
+    const link = document.getElementById("link")?.value;
+    const quantity = document.getElementById("quantity")?.value;
 
-    if (!serviceElement || !linkElement || !quantityElement) {
-        console.error("Missing input elements.");
+    if (!serviceType || !link || !quantity) {
+        document.getElementById("response").innerText = "נא למלא את כל השדות";
         return;
     }
 
-    const service = serviceElement.value;
-    const link = linkElement.value;
-    const quantity = quantityElement.value;
+    try {
+        const response = await fetch("/api/order", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ serviceType, link, quantity })
+        });
 
-    const response = await fetch('/api/order', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ service, link, quantity })
-    });
-
-    const result = await response.json();
-    responseMessage.textContent = result.message || "שגיאה בהזמנה";
+        const result = await response.json();
+        document.getElementById("response").innerText = result.message || "ההזמנה בוצעה בהצלחה";
+    } catch (error) {
+        document.getElementById("response").innerText = "שגיאה בשליחת ההזמנה";
+        console.error("Error:", error);
+    }
 }

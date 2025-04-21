@@ -9,15 +9,15 @@
 <body>
     <div class="container">
         <h1>Adi Boost 🚀</h1>
-        <select id="service">
+        <select id="serviceType">
             <option value="likes">לייקים</option>
-            <option value="followers">עוקבים</option>
             <option value="views">צפיות</option>
+            <option value="followers">עוקבים</option>
         </select>
-        <input type="text" id="link" placeholder="קישור לסרטון" />
-        <input type="number" id="quantity" placeholder="כמות" />
+        <input type="text" id="link" placeholder="קישור לסרטון">
+        <input type="number" id="quantity" placeholder="כמות">
         <button onclick="submitOrder()">הזמן עכשיו</button>
-        <p id="responseMessage"></p>
+        <p id="response"></p>
     </div>
     <script src="main.js"></script>
 </body>
